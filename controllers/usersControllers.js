@@ -14,7 +14,7 @@ function getUser(req, res) {
 
 function createUser(req, res) {
   User.create({ ...req.body })
-    .then(user => res.status(200).send(req.body)) //опечатка ли у Славика в !user!.status(200) ??
+    .then(user => res.status(200).send(req.body))
     .catch((err) => {`типо ошибка ${err}`})
 }
 
