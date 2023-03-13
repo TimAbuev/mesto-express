@@ -1,4 +1,3 @@
-//const users = require('../users.json');
 const User = require('../models/userSchema');
 
 function getUsers(req, res) {
@@ -7,9 +6,9 @@ function getUsers(req, res) {
 }
 
 function getUser(req, res) {
-  const{id} = req.params;
+  const{userId} = req.params;
   //const user = users.find((item) => item._id === iddd);
-  return User.findById(id)
+  return User.findById(userId)
     .then(user => res.status(200).send(user))
 }
 

@@ -1,10 +1,10 @@
 const router = require('express').Router();
-
 const userRoutes = require('./users');
 
-router.use('./users', userRoutes);
-router.use((req, res) => {
-  res.status(404).send({error: 'что-то пошло не тк'});
-})
+// router.get('/users', (req, res ) => {
+//   res.send('test01')
+// });
+
+router.use('/', userRoutes);
 
 module.exports = router;

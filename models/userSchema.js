@@ -4,10 +4,18 @@ const userSchema = new mongoose.Schema({
   name: {
     type: String,
     required: true,
-    minLength: 2
+    minLength: 2,
+    maxLength: 30
   },
-  profilePic: {
+  about: {
     type: String,
+    required: true,
+    minLength: 2,
+    maxLength: 30
+  },
+  avatar: {
+    type: String,
+    required: true
   }
 })
 
