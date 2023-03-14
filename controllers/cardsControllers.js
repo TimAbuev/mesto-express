@@ -6,7 +6,7 @@ function getCards(req, res) {
 }
 
 function createCard(req, res) {
-  Card.create({ ...req.body })
+  Card.create({ ...req.body, owner: req.user._id })
     .then(card => res.status(200).send(req.body))
     .catch((err) => { `типо ошибка ${err}` })
 }
@@ -14,7 +14,7 @@ function createCard(req, res) {
 function deleteCard(req, res) {
   const { cardId } = req.params;
   
-  return Card.findOneAndDelete(cardId) // узнать метод, который удаляет !!!!!
+  return Card.findOneAndDelete(cardId) 
     .then(user => res.status(200).send(user))
 }
 
