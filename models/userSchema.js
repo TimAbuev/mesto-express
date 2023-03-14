@@ -15,7 +15,7 @@ const userSchema = new mongoose.Schema({
   },
   avatar: {
     type: String,
-    required: true
+    //required: true //с этим параметром не отправляется post запрос
   }
 })
 

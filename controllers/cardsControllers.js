@@ -14,7 +14,7 @@ function createCard(req, res) {
 function deleteCard(req, res) {
   const { cardId } = req.params;
   
-  return Card.findOneAndDelete(cardId) 
+  return Card.findOneAndDelete({ _id: cardId })
     .then(user => res.status(200).send(user))
 }
 
