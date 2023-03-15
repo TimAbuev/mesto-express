@@ -13,11 +13,19 @@ function createCard(req, res) {
 
 function deleteCard(req, res) {
   const { cardId } = req.params;
-  
+
   return Card.findOneAndDelete({ _id: cardId })
-    .then(user => res.status(200).send(user))
+    .then(card => res.status(200).send(card))
+}
+
+function addLike(req, res) {
+  const { cardId } = req.params;
+
+  return Card.findByIdAndUpdate(cardId, { $addToSet: { likes: req.user._id } }, // добавить _id в массив, если его там нет
+    { new: true })
+    .then(card => res.status(200).send(req.body))
 }
 
 module.exports = {
-  getCards, createCard, deleteCard
+  getCards, createCard, deleteCard, addLike
 }
