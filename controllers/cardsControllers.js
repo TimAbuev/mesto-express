@@ -26,6 +26,14 @@ function addLike(req, res) {
     .then(card => res.status(200).send(req.body))
 }
 
+function removeLike(req, res) {
+  const { cardId } = req.params;
+
+  return Card.findByIdAndUpdate(cardId, { $pull: { likes: req.user._id } }, // убрать _id из массива
+    { new: true })
+    .then(card => res.status(200).send(req.body))
+}
+
 module.exports = {
-  getCards, createCard, deleteCard, addLike
+  getCards, createCard, deleteCard, addLike, removeLike
 }
