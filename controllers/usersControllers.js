@@ -23,6 +23,11 @@ function refreshProfile(req, res) {
     .then(data => res.status(200).send(req.body))
 }
 
+function refreshAvatar(req, res) {
+  return User.findOneAndUpdate(req.user._id, { avatar: req.body.avatar })
+  .then(data => res.status(200).send(req.body))
+}
+ 
 module.exports = {
-  getUser, getUsers, createUser, refreshProfile
+  getUser, getUsers, createUser, refreshProfile, refreshAvatar
 }
