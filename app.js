@@ -7,7 +7,7 @@ const { PORT = 3000 } = process.env;
 const app = express();
 
 app.use((req, res, next) => {
-  req.user= {
+  req.user = {
     _id: '640f56a4f054a87c72cae6f2'
   };
 
