@@ -17,7 +17,7 @@ class NotFoundError extends ApplicationError {
 }
 // class ValidationError extends ApplicationError {
 //   constructor() {
-//     super(400, "Incorrect data", "ValidationError");
+//     super(400, "Incorrect data", "ValidationShit");
 //   }
 // }
 
@@ -34,7 +34,6 @@ function getUsers(req, res) {
 
 function getUser(req, res) {
   const { userId } = req.params;
-
   return User.findById(userId)
     .orFail(() => {
       throw new NotFoundError();
@@ -53,7 +52,7 @@ function getUser(req, res) {
 function createUser(req, res) {
   User.create({ ...req.body, owner: req.user._id })
     // .orFail(() => {
-    //   throw new NotFoundError();
+    //   throw new ValidationError();
     // })
     .then((user) => res.status(201).send(user))
     .catch((error) => {
