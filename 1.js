@@ -1,5 +1,32 @@
-const User = require('../models/userSchema');
 const mongoose = require('mongoose');
+
+const userSchema = new mongoose.Schema({
+  name: {
+    type: String,
+    required: true,
+    minLength: 2,
+    maxLength: 30
+  },
+  about: {
+    type: String,
+    required: true,
+    minLength: 2,
+    maxLength: 30
+  },
+  avatar: {
+    type: String,
+    required: true
+  },
+  owner: {
+    type: mongoose.Schema.Types.ObjectId,
+    required: true
+  }
+})
+
+module.exports = mongoose.model('user', userSchema);
+
+
+const User = require('../models/userSchema');
 
 class ApplicationError extends Error {
   constructor(status = 500, message = "Internal Error", name = "Internal Server Error") {
@@ -11,11 +38,13 @@ class ApplicationError extends Error {
     Error.captureStackTrace(this, this.constructor);
   }
 }
+
 class NotFoundError extends ApplicationError {
   constructor() {
     super(404, "Resource is not found", "NotFound");
   }
 }
+
 class ValidationError extends ApplicationError {
   constructor() {
     super(400, "Incorrect data", "ValidationShit");
@@ -52,9 +81,9 @@ function getUser(req, res) {
 
 function createUser(req, res) {
   return User.create({ ...req.body, owner: req.user._id })
-    // .orFail(() => {
-    //   throw new ValidationError();
-    // })
+    .orFail(() => {
+      throw new ValidationError();
+    })
     .then((user) => res.status(201).send(user))
     .catch((error) => {
       if (error.name === "ValidationError") {
@@ -66,38 +95,15 @@ function createUser(req, res) {
     })
 }
 
-function refreshProfile(req, res, next) {
-  User.exists({ owner: req.user._id })
-    .then((exists) => {
-      if (!exists) {
-        throw new NotFoundError();
-      }
-      return User.findOneAndUpdate({ owner: req.user._id }, { name: req.body.name, about: req.body.about }, { new: true, runValidators: true });
-    })
-    .then((data) => {
-      res.status(200).send(req.body);
-    })
+function refreshProfile(req, res) {
+  return User.findOneAndUpdate({owner: req.user._id}, { name: req.body.name, about: req.body.about })
+    .then(data => res.status(200).send(req.body))
     .catch((error) => {
-      if (error instanceof mongoose.Error.ValidationError) {
+      if (error.name === "ValidationError") {
         res.status(400).send({ message: ` ${error}` })
       }
-      else if (error instanceof NotFoundError) {
-        res.status(404).send({ message: "Запись не найдена" });
+      else if (error.name === "NotFound") {
+        res.status(404).send({ message: `Resource is not found` })
       }
       else {
-        next(error);
-      }
-    });
-}
-
-
-
-function refreshAvatar(req, res) {
-  return User.findOneAndUpdate(req.user._id, { avatar: req.body.avatar })
-    .then(data => res.status(200).send(req.body))
-}
-
-
-module.exports = {
-  getUser, getUsers, createUser, refreshProfile, refreshAvatar
-}
+        res.status(500).send({ message
