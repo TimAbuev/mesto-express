@@ -19,9 +19,23 @@ function getCards(req, res) {
 }
 
 function createCard(req, res) {
-  Card.create({ ...req.body, owner: req.user._id })
+  return Card.create({ ...req.body, owner: req.user._id })
     .then(card => res.status(200).send(req.body))
-    .catch((err) => { `типо ошибка ${err}` })
+    .catch((error) => {
+      if (error instanceof mongoose.Error.ValidationError) {
+        throw new ValidationError();
+      } else {
+        throw new ApplicationError();
+      }
+    })
+    .catch((error) => {
+      if (error instanceof ApplicationError) {
+        res.status(error.status).send({ message: error.message });
+      } else {
+        res.status(500).send({ message: "Something went wrong." });
+      }
+    });
+
 }
 
 function deleteCard(req, res) {
