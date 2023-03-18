@@ -95,8 +95,16 @@ function refreshProfile(req, res) {
 }
 
 function refreshAvatar(req, res) {
-  return User.findOneAndUpdate(req.user._id, { avatar: req.body.avatar })
+  return User.findOneAndUpdate({ owner: req.user._id }, { avatar: req.body.avatar })
     .then(data => res.status(200).send(req.body))
+    .catch((error) => {
+      if (error.name === 'CastError' && error.kind === 'ObjectId') {
+        res.status(404).send({ message: ` ${error}` })
+      }
+      else {
+        res.status(500).send({ message: "Something went wrong." });
+      }
+    });
 }
 
 
