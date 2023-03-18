@@ -42,7 +42,17 @@ function deleteCard(req, res) {
   const { cardId } = req.params;
 
   return Card.findOneAndDelete({ _id: cardId })
+    .orFail(() => {
+      throw new NotFoundError();
+    })
     .then(card => res.status(200).send(card))
+    .catch((error) => {
+      if (error instanceof ApplicationError) {
+        res.status(error.status).send({ message: error.message });
+      } else {
+        res.status(500).send({ message: "Something went wrong." });
+      }
+    })
 }
 
 function addLike(req, res) {
