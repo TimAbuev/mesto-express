@@ -25,13 +25,19 @@ class ValidationError extends ApplicationError {
 function getUsers(req, res) {
   return User.find({})
     .orFail(() => {
-      throw new ApplicationError();
+      throw new NotFoundError();
     })
     .then(users => res.status(200).send(users))
-    .catch((error) => {
-      res.status(500).send(error);
-    })
+    .catch(error => {
+      if (error instanceof ApplicationError) {
+        res.status(error.status).send({ message: error.message });
+      } else {
+        res.status(500).send({ message: "Something went wrong." });
+      }
+    });
 }
+
+
 
 function getUser(req, res) {
   const { userId } = req.params;
@@ -89,8 +95,6 @@ function refreshProfile(req, res, next) {
       }
     });
 }
-
-
 
 function refreshAvatar(req, res) {
   return User.findOneAndUpdate(req.user._id, { avatar: req.body.avatar })
