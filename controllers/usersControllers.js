@@ -18,7 +18,7 @@ class NotFoundError extends ApplicationError {
 }
 class ValidationError extends ApplicationError {
   constructor() {
-    super(400, "Incorrect data", "ValidationShit");
+    super(400, "Incorrect data", "ValidationProblem");
   }
 }
 
@@ -37,8 +37,6 @@ function getUsers(req, res) {
     });
 }
 
-
-
 function getUser(req, res) {
   const { userId } = req.params;
   return User.findById(userId)
@@ -47,29 +45,31 @@ function getUser(req, res) {
     })
     .then(user => res.status(200).send(user))
     .catch((error) => {
-      if (error.status === 404) {
-        res.status(error.status).send(error)
-      }
-      else {
-        res.status(500).send({ message: `Internal server error ${error}` });
+      if (error instanceof ApplicationError) {
+        res.status(error.status).send({ message: error.message });
+      } else {
+        res.status(500).send({ message: "Something went wrong." });
       }
     })
 }
 
 function createUser(req, res) {
   return User.create({ ...req.body, owner: req.user._id })
-    // .orFail(() => {
-    //   throw new ValidationError();
-    // })
     .then((user) => res.status(201).send(user))
     .catch((error) => {
-      if (error.name === "ValidationError") {
-        res.status(400).send({ message: ` ${error}` })
-      }
-      else {
-        res.status(500).send({ message: `Internal server error ${error}` });
+      if (error instanceof mongoose.Error.ValidationError) {
+        throw new ValidationError();
+      } else {
+        throw new ApplicationError();
       }
     })
+    .catch((error) => {
+      if (error instanceof ApplicationError) {
+        res.status(error.status).send({ message: error.message });
+      } else {
+        res.status(500).send({ message: "Something went wrong." });
+      }
+    });
 }
 
 function refreshProfile(req, res, next) {
