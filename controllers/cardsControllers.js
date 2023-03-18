@@ -1,8 +1,21 @@
 const Card = require('../models/cardSchema');
+const mongoose = require('mongoose');
+const { ApplicationError, NotFoundError, ValidationError } = require('./errors')
 
 function getCards(req, res) {
   return Card.find({})
-    .then(cards => res.status(200).send(cards));
+    .orFail(() => {
+      throw new NotFoundError();
+    })
+    .then(cards => res.status(200).send(cards))
+    .catch(error => {
+      if (error instanceof ApplicationError) {
+        res.status(error.status).send({ message: error.message });
+      }
+      else {
+        res.status(500).send({ message: "Something went wrong." });
+      }
+    });
 }
 
 function createCard(req, res) {
