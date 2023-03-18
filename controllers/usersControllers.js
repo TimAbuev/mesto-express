@@ -31,7 +31,8 @@ function getUsers(req, res) {
     .catch(error => {
       if (error instanceof ApplicationError) {
         res.status(error.status).send({ message: error.message });
-      } else {
+      }
+      else {
         res.status(500).send({ message: "Something went wrong." });
       }
     });
@@ -72,14 +73,11 @@ function createUser(req, res) {
     });
 }
 
-function refreshProfile(req, res, next) {
-  User.exists({ owner: req.user._id })
-    .then((exists) => {
-      if (!exists) {
-        throw new NotFoundError();
-      }
-      return User.findOneAndUpdate({ owner: req.user._id }, { name: req.body.name, about: req.body.about }, { new: true, runValidators: true });
-    })
+function refreshProfile(req, res) {
+  return User.findOneAndUpdate({ owner: req.user._id }, { name: req.body.name, about: req.body.about }, { new: true, runValidators: true })
+    // .orFail(() => {
+    //   throw new NotFoundError();
+    // })
     .then((data) => {
       res.status(200).send(req.body);
     })
@@ -87,11 +85,11 @@ function refreshProfile(req, res, next) {
       if (error instanceof mongoose.Error.ValidationError) {
         res.status(400).send({ message: ` ${error}` })
       }
-      else if (error instanceof NotFoundError) {
-        res.status(404).send({ message: "Запись не найдена" });
+      else if (error.name === 'CastError' && error.kind === 'ObjectId') {
+        res.status(404).send({ message: ` ${error}` })
       }
       else {
-        next(error);
+        res.status(500).send({ message: "Something went wrong." });
       }
     });
 }
