@@ -60,7 +60,15 @@ function addLike(req, res) {
 
   return Card.findByIdAndUpdate(cardId, { $addToSet: { likes: req.user._id } }, // добавить _id в массив, если его там нет
     { new: true })
-    .then(card => res.status(200).send(req.body))
+    .then(card => res.status(200).send(card))
+    .catch((error) => {
+      if (error.name === 'CastError' && error.kind === 'ObjectId') {
+        res.status(404).send({ message: ` ${error}` })
+      }
+      else {
+        res.status(500).send({ message: "Something went wrong." });
+      }
+    });
 }
 
 function removeLike(req, res) {
