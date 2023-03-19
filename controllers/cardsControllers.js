@@ -40,16 +40,16 @@ function createCard(req, res) {
 
 function deleteCard(req, res) {
   const { cardId } = req.params;
-
   return Card.findOneAndDelete({ _id: cardId })
     .orFail(() => {
-      throw new NotFoundError();
+      throw new NotFoundError(); //неверный URL
     })
     .then(card => res.status(200).send(card))
     .catch((error) => {
-      if (error instanceof ApplicationError) {
-        res.status(error.status).send({ message: error.message });
-      } else {
+      if (error.name === 'CastError' && error.kind === 'ObjectId') {
+        res.status(404).send({ message: `Передан несуществующий _id карточки. ${error}` })
+      }
+       else {
         res.status(500).send({ message: "Something went wrong." });
       }
     })
