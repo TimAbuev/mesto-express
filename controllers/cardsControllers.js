@@ -76,7 +76,7 @@ function removeLike(req, res) {
 
   return Card.findByIdAndUpdate(cardId, { $pull: { likes: req.user._id } }, // убрать _id из массива
     { new: true })
-    .then(card => res.status(200).send(card.likes))
+    .then(card => res.status(200).send(card))
     .catch((error) => {
       if (error.name === 'CastError' && error.kind === 'ObjectId') {
         res.status(404).send({ message: `Передан несуществующий _id карточки. ${error}` })
