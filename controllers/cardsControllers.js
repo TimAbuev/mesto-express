@@ -60,10 +60,10 @@ function addLike(req, res) {
 
   return Card.findByIdAndUpdate(cardId, { $addToSet: { likes: req.user._id } }, // добавить _id в массив, если его там нет
     { new: true })
-    .then(card => res.status(200).send(card))
+    .then(card => res.status(200).send(card.likes))
     .catch((error) => {
       if (error.name === 'CastError' && error.kind === 'ObjectId') {
-        res.status(404).send({ message: ` ${error}` })
+        res.status(404).send({ message: `Передан несуществующий _id карточки. ${error}` })
       }
       else {
         res.status(500).send({ message: "Something went wrong." });
@@ -76,7 +76,15 @@ function removeLike(req, res) {
 
   return Card.findByIdAndUpdate(cardId, { $pull: { likes: req.user._id } }, // убрать _id из массива
     { new: true })
-    .then(card => res.status(200).send(req.body))
+    .then(card => res.status(200).send(card.likes))
+    .catch((error) => {
+      if (error.name === 'CastError' && error.kind === 'ObjectId') {
+        res.status(404).send({ message: `Передан несуществующий _id карточки. ${error}` })
+      }
+      else {
+        res.status(500).send({ message: "Something went wrong." });
+      }
+    });
 }
 
 module.exports = {
