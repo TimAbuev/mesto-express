@@ -63,10 +63,10 @@ function refreshProfile(req, res) {
     })
     .catch((error) => {
       if (error instanceof mongoose.Error.ValidationError) {
-        res.status(400).send({ message: ` ${error}` })
+        res.status(400).send({ message: error.message })
       }
       else if (error.name === 'CastError' && error.kind === 'ObjectId') {
-        res.status(404).send({ message: ` ${error}` })
+        res.status(404).send({ message: error.message })
       }
       else {
         res.status(500).send({ message: "Something went wrong." });
@@ -79,7 +79,7 @@ function refreshAvatar(req, res) {
     .then(data => res.status(200).send(req.body))
     .catch((error) => {
       if (error.name === 'CastError' && error.kind === 'ObjectId') {
-        res.status(404).send({ message: ` ${error}` })
+        res.status(404).send({ message: error.message })
       }
       else {
         res.status(500).send({ message: "Something went wrong." });
