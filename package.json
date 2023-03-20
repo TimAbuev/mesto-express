@@ -6,12 +6,13 @@
   "scripts": {
     "start": "node app.js",
     "dev": "nodemon app.js",
-    "lint": "npx eslint .rs"
+    "lint": "npx eslint ."
   },
   "author": "Tim",
   "license": "ISC",
   "dependencies": {
     "body-parse": "^0.1.0",
+    "body-parser": "^1.20.2",
     "express": "^4.18.2",
     "mongoose": "^7.0.0"
   },
