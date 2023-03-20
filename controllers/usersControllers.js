@@ -35,7 +35,7 @@ function getUser(req, res) {
 }
 
 function createUser(req, res) {
-  return User.create({ ...req.body, owner: req.user._id })
+  return User.create({ ...req.body })
     .then((user) => res.status(201).send(user))
     .catch((error) => {
       if (error instanceof mongoose.Error.ValidationError) {
@@ -55,7 +55,7 @@ function createUser(req, res) {
 
 function refreshProfile(req, res) {
   // eslint-disable-next-line max-len
-  return User.findOneAndUpdate({ owner: req.user._id }, { name: req.body.name, about: req.body.about }, { new: true, runValidators: true })
+  return User.findByIdAndUpdate(req.user._id, { name: req.body.name, about: req.body.about }, { new: true, runValidators: true })
     // .orFail(() => {
     //   throw new NotFoundError();
     // })
@@ -74,7 +74,8 @@ function refreshProfile(req, res) {
 }
 
 function refreshAvatar(req, res) {
-  return User.findOneAndUpdate({ owner: req.user._id }, { avatar: req.body.avatar })
+  // eslint-disable-next-line max-len
+  return User.findByIdAndUpdate(req.user._id, { avatar: req.body.avatar }, { new: true, runValidators: true })
     .then(() => res.status(200).send(req.body))
     .catch((error) => {
       if (error.name === 'CastError' && error.kind === 'ObjectId') {
