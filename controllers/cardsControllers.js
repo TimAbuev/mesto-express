@@ -40,14 +40,16 @@ function createCard(req, res) {
 
 function deleteCard(req, res) {
   const { cardId } = req.params;
-  return Card.findOneAndDelete({ _id: cardId })
+  return Card.findByIdAndRemove({ _id: cardId })
     .orFail(() => {
-      throw new NotFoundError(); // неверный URL
+      throw new NotFoundError();
     })
     .then((card) => res.status(200).send(card))
     .catch((error) => {
       if (error.name === 'CastError' && error.kind === 'ObjectId') {
-        res.status(404).send({ message: `Передан несуществующий _id карточки. ${error}` });
+        res.status(400).send({ message: error.message });
+      } else if (error instanceof NotFoundError) {
+        res.status(404).send({ message: error.message });
       } else {
         res.status(500).send({ message: 'Something went wrong.' });
       }
@@ -62,10 +64,11 @@ function addLike(req, res) {
     { $addToSet: { likes: req.user._id } }, // добавить _id в массив, если его там нет
     { new: true },
   )
+
     .then((card) => res.status(200).send(card))
     .catch((error) => {
       if (error.name === 'CastError' && error.kind === 'ObjectId') {
-        res.status(404).send({ message: `Передан несуществующий _id карточки. ${error}` });
+        res.status(400).send({ message: error.message });
       } else {
         res.status(500).send({ message: 'Something went wrong.' });
       }
