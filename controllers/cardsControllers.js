@@ -64,11 +64,15 @@ function addLike(req, res) {
     { $addToSet: { likes: req.user._id } }, // добавить _id в массив, если его там нет
     { new: true },
   )
-
+    .orFail(() => {
+      throw new NotFoundError();
+    })
     .then((card) => res.status(200).send(card))
     .catch((error) => {
       if (error.name === 'CastError' && error.kind === 'ObjectId') {
         res.status(400).send({ message: error.message });
+      } else if (error instanceof NotFoundError) {
+        res.status(404).send({ message: error.message });
       } else {
         res.status(500).send({ message: 'Something went wrong.' });
       }
