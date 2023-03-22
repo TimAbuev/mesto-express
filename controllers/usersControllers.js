@@ -56,16 +56,16 @@ function createUser(req, res) {
 function refreshProfile(req, res) {
   // eslint-disable-next-line max-len
   return User.findByIdAndUpdate(req.user._id, { name: req.body.name, about: req.body.about }, { new: true, runValidators: true })
-    // .orFail(() => {
-    //   throw new NotFoundError();
-    // })
+    .orFail(() => {
+      throw new NotFoundError();
+    })
     .then(() => {
       res.status(200).send(req.body);
     })
     .catch((error) => {
       if (error instanceof mongoose.Error.ValidationError) {
         res.status(400).send({ message: error.message });
-      } else if (error.name === 'CastError' && error.kind === 'ObjectId') {
+      } else if (error instanceof NotFoundError) {
         res.status(404).send({ message: error.message });
       } else {
         res.status(500).send({ message: 'Something went wrong.' });
