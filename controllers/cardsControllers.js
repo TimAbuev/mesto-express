@@ -2,7 +2,9 @@
 const mongoose = require('mongoose');
 const Card = require('../models/cardSchema');
 
-const { ApplicationError, NotFoundError, ValidationError } = require('./errors');
+const {
+  ApplicationError, NotFoundError, ValidationError, INTERNAL_SERVER_ERROR, NOT_FOUND, BAD_REQUEST,
+} = require('./errors');
 
 function getCards(req, res) {
   return Card.find({})
@@ -14,7 +16,7 @@ function getCards(req, res) {
       if (error instanceof ApplicationError) {
         res.status(error.status).send({ message: error.message });
       } else {
-        res.status(500).send({ message: 'Something went wrong.' });
+        res.status(INTERNAL_SERVER_ERROR).send({ message: 'Something went wrong.' });
       }
     });
 }
@@ -33,7 +35,7 @@ function createCard(req, res) {
       if (error instanceof ApplicationError) {
         res.status(error.status).send({ message: error.message });
       } else {
-        res.status(500).send({ message: 'Something went wrong.' });
+        res.status(INTERNAL_SERVER_ERROR).send({ message: 'Something went wrong.' });
       }
     });
 }
@@ -47,11 +49,11 @@ function deleteCard(req, res) {
     .then((card) => res.status(200).send(card))
     .catch((error) => {
       if (error.name === 'CastError' && error.kind === 'ObjectId') {
-        res.status(400).send({ message: error.message });
+        res.status(BAD_REQUEST).send({ message: error.message });
       } else if (error instanceof NotFoundError) {
-        res.status(404).send({ message: error.message });
+        res.status(NOT_FOUND).send({ message: error.message });
       } else {
-        res.status(500).send({ message: 'Something went wrong.' });
+        res.status(INTERNAL_SERVER_ERROR).send({ message: 'Something went wrong.' });
       }
     });
 }
@@ -70,11 +72,11 @@ function addLike(req, res) {
     .then((card) => res.status(200).send(card))
     .catch((error) => {
       if (error.name === 'CastError' && error.kind === 'ObjectId') {
-        res.status(400).send({ message: error.message });
+        res.status(BAD_REQUEST).send({ message: error.message });
       } else if (error instanceof NotFoundError) {
-        res.status(404).send({ message: error.message });
+        res.status(NOT_FOUND).send({ message: error.message });
       } else {
-        res.status(500).send({ message: 'Something went wrong.' });
+        res.status(INTERNAL_SERVER_ERROR).send({ message: 'Something went wrong.' });
       }
     });
 }
@@ -93,11 +95,11 @@ function removeLike(req, res) {
     .then((card) => res.status(200).send(card))
     .catch((error) => {
       if (error.name === 'CastError' && error.kind === 'ObjectId') {
-        res.status(400).send({ message: error.message });
+        res.status(BAD_REQUEST).send({ message: error.message });
       } else if (error instanceof NotFoundError) {
-        res.status(404).send({ message: error.message });
+        res.status(NOT_FOUND).send({ message: error.message });
       } else {
-        res.status(500).send({ message: 'Something went wrong.' });
+        res.status(INTERNAL_SERVER_ERROR).send({ message: 'Something went wrong.' });
       }
     });
 }

@@ -1,7 +1,9 @@
 /* eslint-disable no-underscore-dangle */
 const mongoose = require('mongoose');
 const User = require('../models/userSchema');
-const { ApplicationError, NotFoundError, ValidationError } = require('./errors');
+const {
+  ApplicationError, NotFoundError, ValidationError, INTERNAL_SERVER_ERROR, NOT_FOUND, BAD_REQUEST,
+} = require('./errors');
 
 function getUsers(req, res) {
   return User.find({})
@@ -13,7 +15,7 @@ function getUsers(req, res) {
       if (error instanceof ApplicationError) {
         res.status(error.status).send({ message: error.message });
       } else {
-        res.status(500).send({ message: 'Something went wrong.' });
+        res.status(INTERNAL_SERVER_ERROR).send({ message: 'Something went wrong.' });
       }
     });
 }
@@ -29,7 +31,7 @@ function getUser(req, res) {
       if (error instanceof ApplicationError) {
         res.status(error.status).send({ message: error.message });
       } else {
-        res.status(500).send({ message: 'Something went wrong.' });
+        res.status(INTERNAL_SERVER_ERROR).send({ message: 'Something went wrong.' });
       }
     });
 }
@@ -48,7 +50,7 @@ function createUser(req, res) {
       if (error instanceof ApplicationError) {
         res.status(error.status).send({ message: error.message });
       } else {
-        res.status(500).send({ message: 'Something went wrong.' });
+        res.status(INTERNAL_SERVER_ERROR).send({ message: 'Something went wrong.' });
       }
     });
 }
@@ -64,11 +66,11 @@ function refreshProfile(req, res) {
     })
     .catch((error) => {
       if (error instanceof mongoose.Error.ValidationError) {
-        res.status(400).send({ message: error.message });
+        res.status(BAD_REQUEST).send({ message: error.message });
       } else if (error instanceof NotFoundError) {
-        res.status(404).send({ message: error.message });
+        res.status(NOT_FOUND).send({ message: error.message });
       } else {
-        res.status(500).send({ message: 'Something went wrong.' });
+        res.status(INTERNAL_SERVER_ERROR).send({ message: 'Something went wrong.' });
       }
     });
 }
@@ -82,9 +84,9 @@ function refreshAvatar(req, res) {
     .then(() => res.status(200).send(req.body))
     .catch((error) => {
       if (error instanceof NotFoundError) {
-        res.status(404).send({ message: error.message });
+        res.status(NOT_FOUND).send({ message: error.message });
       } else {
-        res.status(500).send({ message: 'Something went wrong.' });
+        res.status(INTERNAL_SERVER_ERROR).send({ message: 'Something went wrong.' });
       }
     });
 }
