@@ -1,5 +1,7 @@
 const mongoose = require('mongoose');
+const bcrypt = require('bcrypt');
 const User = require('../models/userSchema');
+
 const {
   ApplicationError, NotFoundError, ValidationError, INTERNAL_SERVER_ERROR, NOT_FOUND, BAD_REQUEST,
 } = require('./errors');
@@ -36,11 +38,15 @@ function getUser(req, res) {
 }
 
 function createUser(req, res) {
-  return User.create({ ...req.body })
+  const { password } = req.body;
+  bcrypt.hash(password, 10)
+    .then((hash) => User.create({ ...req.body, password: hash }))
     .then((user) => res.status(201).send(user))
     .catch((error) => {
       if (error instanceof mongoose.Error.ValidationError) {
         throw new ValidationError();
+      } else if (error.code === 11000) {
+        res.status(409).send({ message: 'Пользователь с таким email всуществует' });
       } else {
         throw new ApplicationError();
       }
