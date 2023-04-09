@@ -2,6 +2,7 @@
 const INTERNAL_SERVER_ERROR = 500;
 const NOT_FOUND = 404;
 const BAD_REQUEST = 400;
+const UNAUTHORIZED = 401;
 
 class ApplicationError extends Error {
   constructor(status = 500, message = 'Internal Error', name = 'Internal Server Error') {
@@ -23,12 +24,19 @@ class ValidationError extends ApplicationError {
     super(400, 'Incorrect data', 'ValidationProblem');
   }
 }
+class UnauthorizedError extends ApplicationError {
+  constructor() {
+    super(401, 'UNAUTHORIZED', 'UNAUTHORIZED');
+  }
+}
 
 module.exports = {
   ApplicationError,
   NotFoundError,
   ValidationError,
+  UnauthorizedError,
   INTERNAL_SERVER_ERROR,
   NOT_FOUND,
   BAD_REQUEST,
+  UNAUTHORIZED,
 };

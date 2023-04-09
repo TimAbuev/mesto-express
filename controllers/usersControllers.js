@@ -3,7 +3,8 @@ const bcrypt = require('bcrypt');
 const User = require('../models/userSchema');
 
 const {
-  ApplicationError, NotFoundError, ValidationError, INTERNAL_SERVER_ERROR, NOT_FOUND, BAD_REQUEST,
+  ApplicationError, NotFoundError, ValidationError, UnauthorizedError, INTERNAL_SERVER_ERROR,
+  NOT_FOUND, BAD_REQUEST, UNAUTHORIZED,
 } = require('./errors');
 
 function getUsers(req, res) {
@@ -60,6 +61,20 @@ function createUser(req, res) {
     });
 }
 
+function login(req, res) {
+  const { email, password } = req.body;
+
+  User
+    .findOne({ email })
+    .orFail(() => res.status(UNAUTHORIZED).send({ message: 'Пользователь не найден' }))
+    .then((user) => res.send(user))
+    .catch((error) => {
+      if (error instanceof UnauthorizedError) {
+        res.status(UNAUTHORIZED).send({ message: error.message });
+      }
+    });
+}
+
 function refreshProfile(req, res) {
   // eslint-disable-next-line max-len
   return User.findByIdAndUpdate(req.user._id, { name: req.body.name, about: req.body.about }, { new: true, runValidators: true })
@@ -97,5 +112,5 @@ function refreshAvatar(req, res) {
 }
 
 module.exports = {
-  getUser, getUsers, createUser, refreshProfile, refreshAvatar,
+  getUser, getUsers, createUser, refreshProfile, refreshAvatar, login,
 };
