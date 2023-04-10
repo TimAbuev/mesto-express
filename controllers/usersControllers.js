@@ -66,11 +66,22 @@ function login(req, res) {
 
   User
     .findOne({ email })
-    .orFail(() => res.status(UNAUTHORIZED).send({ message: 'Пользователь не найден' }))
+    .orFail(() => {
+      throw new UnauthorizedError();
+    })
+    .then((user) => bcrypt.compare(password, user.password)
+      .then((matched) => {
+        if (matched) {
+          return user;
+        }
+        throw new UnauthorizedError();
+      }))
     .then((user) => res.send(user))
     .catch((error) => {
       if (error instanceof UnauthorizedError) {
         res.status(UNAUTHORIZED).send({ message: error.message });
+      } else {
+        res.status(INTERNAL_SERVER_ERROR).send({ message: 'Something went wrong.' });
       }
     });
 }
