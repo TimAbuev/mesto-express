@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
+const jsonwebtoken = require('jsonwebtoken');
 const User = require('../models/userSchema');
 
 const {
@@ -76,7 +77,10 @@ function login(req, res) {
         }
         throw new UnauthorizedError();
       }))
-    .then((user) => res.send(user))
+    .then((user) => {
+      const jwt = jsonwebtoken.sign({ _id: user._id }, 'secret_key', { expiresIn: '7d' });
+      res.send({ user, jwt });
+    })
     .catch((error) => {
       if (error instanceof UnauthorizedError) {
         res.status(UNAUTHORIZED).send({ message: error.message });
