@@ -78,7 +78,7 @@ function login(req, res) {
         throw new UnauthorizedError();
       }))
     .then((user) => {
-      const jwt = jsonwebtoken.sign({ _id: user._id }, 'secret_key', { expiresIn: '7d' });
+      const jwt = jsonwebtoken.sign({ _id: user._id }, 'shhhhh', { expiresIn: '7d' });
       res.send({ user, jwt });
     })
     .catch((error) => {
@@ -126,6 +126,33 @@ function refreshAvatar(req, res) {
     });
 }
 
+function getCurrentuser(req, res) {
+  const { authorization } = req.headers;
+
+  if (!authorization || !authorization.startsWith('Bearer')) {
+    res.status(401).send({ message: 'необходима авторизация' });
+  }
+
+  let payload;
+  const jwt = authorization.replace('Bearer ', '');
+  try {
+    payload = jsonwebtoken.verify(jwt, 'shhhhh');
+  } catch {
+    res.status(UNAUTHORIZED).send({ message: 'необходима авторизация' });
+  }
+  User
+    .findById(payload._id)
+    .orFail(() => { throw new NotFoundError(); })
+    .then((user) => res.send(user))
+    .catch((err) => {
+      if (err instanceof NotFoundError) {
+        res.status(NOT_FOUND).send({ message: err.message });
+      } else {
+        res.status(INTERNAL_SERVER_ERROR).send({ message: 'Something went wrong.' });
+      }
+    });
+}
+
 module.exports = {
-  getUser, getUsers, createUser, refreshProfile, refreshAvatar, login,
+  getUser, getUsers, createUser, refreshProfile, refreshAvatar, login, getCurrentuser,
 };

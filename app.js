@@ -3,6 +3,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const routes = require('./routes/index');
+// const auth = require('./middleware/auth');
 
 const { PORT = 3000 } = process.env;
 const app = express();
