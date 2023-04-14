@@ -126,7 +126,7 @@ function refreshAvatar(req, res) {
     });
 }
 
-function getCurrentuser(req, res) {
+function getCurrentUser(req, res) {
   const { authorization } = req.headers;
 
   if (!authorization || !authorization.startsWith('Bearer')) {
@@ -154,5 +154,5 @@ function getCurrentuser(req, res) {
 }
 
 module.exports = {
-  getUser, getUsers, createUser, refreshProfile, refreshAvatar, login, getCurrentuser,
+  getUser, getUsers, createUser, refreshProfile, refreshAvatar, login, getCurrentUser,
 };

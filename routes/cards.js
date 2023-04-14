@@ -2,11 +2,12 @@ const router = require('express').Router();
 const {
   getCards, createCard, deleteCard, addLike, removeLike,
 } = require('../controllers/cardsControllers'); // важно соблюдать порядок импортируемых объектов
+const auth = require('../middleware/auth');
 
-router.get('/', getCards);
-router.post('/', createCard);
-router.delete('/:cardId', deleteCard);
-router.put('/:cardId/likes', addLike);
-router.delete('/:cardId/likes', removeLike);
+router.get('/', auth, getCards);
+router.post('/', auth, createCard);
+router.delete('/:cardId', auth, deleteCard);
+router.put('/:cardId/likes', auth, addLike);
+router.delete('/:cardId/likes', auth, removeLike);
 
 module.exports = router;
