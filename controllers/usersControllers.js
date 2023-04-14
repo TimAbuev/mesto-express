@@ -66,7 +66,7 @@ function login(req, res) {
   const { email, password } = req.body;
 
   User
-    .findOne({ email })
+    .findOne({ email }).select('+password')
     .orFail(() => {
       throw new UnauthorizedError();
     })
