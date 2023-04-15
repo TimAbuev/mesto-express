@@ -116,6 +116,8 @@ function refreshAvatar(req, res) {
     .catch((error) => {
       if (error instanceof NotFoundError) {
         res.status(NOT_FOUND).send({ message: error.message });
+      } else if (mongoose.Error.ValidationError) {
+        res.status(BAD_REQUEST).send({ message: 'невалидная ссылка' });
       } else {
         res.status(INTERNAL_SERVER_ERROR).send({ message: 'Something went wrong.' });
       }
