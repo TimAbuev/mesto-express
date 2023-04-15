@@ -4,8 +4,8 @@ const jsonwebtoken = require('jsonwebtoken');
 const User = require('../models/userSchema');
 
 const {
-  ApplicationError, NotFoundError, ValidationError, UnauthorizedError, INTERNAL_SERVER_ERROR,
-  NOT_FOUND, BAD_REQUEST, UNAUTHORIZED,
+  ApplicationError, NotFoundError, UnauthorizedError, INTERNAL_SERVER_ERROR,
+  NOT_FOUND, BAD_REQUEST, UNAUTHORIZED, ALREADY_EXIST,
 } = require('./errors');
 
 function getUsers(req, res) {
@@ -41,21 +41,17 @@ function getUser(req, res) {
 
 function createUser(req, res) {
   const { password } = req.body;
-  bcrypt.hash(password, 10)
+  if (password.length < 8) {
+    return res.status(BAD_REQUEST).send({ message: 'Длина пароля должна быть не менее 8 символов' });
+  }
+  return bcrypt.hash(password, 10)
     .then((hash) => User.create({ ...req.body, password: hash }))
     .then((user) => res.status(201).send(user))
     .catch((error) => {
       if (error instanceof mongoose.Error.ValidationError) {
-        throw new ValidationError();
+        res.status(BAD_REQUEST).send({ message: 'Поле должно быть валидным email' });
       } else if (error.code === 11000) {
-        res.status(409).send({ message: 'Пользователь с таким email всуществует' });
-      } else {
-        throw new ApplicationError();
-      }
-    })
-    .catch((error) => {
-      if (error instanceof ApplicationError) {
-        res.status(error.status).send({ message: error.message });
+        res.status(ALREADY_EXIST).send({ message: 'Пользователь с таким email существует' });
       } else {
         res.status(INTERNAL_SERVER_ERROR).send({ message: 'Something went wrong.' });
       }

@@ -3,6 +3,7 @@ const INTERNAL_SERVER_ERROR = 500;
 const NOT_FOUND = 404;
 const BAD_REQUEST = 400;
 const UNAUTHORIZED = 401;
+const ALREADY_EXIST = 409;
 
 class ApplicationError extends Error {
   constructor(status = 500, message = 'Internal Error', name = 'Internal Server Error') {
@@ -39,4 +40,5 @@ module.exports = {
   NOT_FOUND,
   BAD_REQUEST,
   UNAUTHORIZED,
+  ALREADY_EXIST,
 };
