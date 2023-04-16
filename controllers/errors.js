@@ -4,6 +4,7 @@ const NOT_FOUND = 404;
 const BAD_REQUEST = 400;
 const UNAUTHORIZED = 401;
 const ALREADY_EXIST = 409;
+const OTHER_CARD = 403;
 
 class ApplicationError extends Error {
   constructor(status = 500, message = 'Internal Error', name = 'Internal Server Error') {
@@ -30,15 +31,22 @@ class UnauthorizedError extends ApplicationError {
     super(401, 'UNAUTHORIZED', 'UNAUTHORIZED');
   }
 }
+class OtherCardError extends ApplicationError {
+  constructor() {
+    super(403, 'OtherCard', 'this is not your card');
+  }
+}
 
 module.exports = {
   ApplicationError,
   NotFoundError,
   ValidationError,
   UnauthorizedError,
+  OtherCardError,
   INTERNAL_SERVER_ERROR,
   NOT_FOUND,
   BAD_REQUEST,
   UNAUTHORIZED,
   ALREADY_EXIST,
+  OTHER_CARD,
 };

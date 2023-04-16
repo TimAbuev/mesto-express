@@ -2,7 +2,8 @@ const mongoose = require('mongoose');
 const Card = require('../models/cardSchema');
 
 const {
-  ApplicationError, NotFoundError, ValidationError, INTERNAL_SERVER_ERROR, NOT_FOUND, BAD_REQUEST,
+  ApplicationError, NotFoundError, ValidationError, OtherCardError,
+  INTERNAL_SERVER_ERROR, NOT_FOUND, BAD_REQUEST, OTHER_CARD,
 } = require('./errors');
 
 function getCards(req, res) {
@@ -41,9 +42,18 @@ function createCard(req, res) {
 
 function deleteCard(req, res) {
   const { cardId } = req.params;
-  return Card.findByIdAndRemove({ _id: cardId })
-    .orFail(() => {
-      throw new NotFoundError();
+  const userId = req.user._id;
+
+  Card.findById({ _id: cardId })
+    .then((card) => {
+      if (userId !== card.owner.toString()) {
+        console.log(`req.user._id = ${typeof userId}; card.owner = ${typeof card.owner}`);
+        throw new OtherCardError();
+      }
+      return Card.findByIdAndRemove({ _id: cardId })
+        .orFail(() => {
+          throw new NotFoundError();
+        });
     })
     .then((card) => res.status(200).send(card))
     .catch((error) => {
@@ -51,6 +61,8 @@ function deleteCard(req, res) {
         res.status(BAD_REQUEST).send({ message: error.message });
       } else if (error instanceof NotFoundError) {
         res.status(NOT_FOUND).send({ message: error.message });
+      } else if (error instanceof OtherCardError) {
+        res.status(OTHER_CARD).send({ message: error.message });
       } else {
         res.status(INTERNAL_SERVER_ERROR).send({ message: 'Something went wrong.' });
       }

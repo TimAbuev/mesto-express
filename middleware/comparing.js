@@ -12,7 +12,6 @@ function auth(req, res, next) {
   const jwt = authorization.replace('Bearer ', '');
   try {
     payload = jsonwebtoken.verify(jwt, 'shhhhh');
-    console.log(payload);
   } catch {
     res.status(UNAUTHORIZED).send({ message: 'необходима авторизация' });
   }
