@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const Joi = require('joi');
 
 const cardSchema = new mongoose.Schema(
   {
@@ -29,4 +30,13 @@ const cardSchema = new mongoose.Schema(
   { versionKey: false },
 );
 
-module.exports = mongoose.model('card', cardSchema);
+module.exports = {
+  cardSchema: mongoose.model('card', cardSchema),
+  postSchema: Joi.object({
+    name: Joi.string().min(2).max(30).required(),
+    link: Joi.string().uri(),
+  }),
+  paramSchema: Joi.object({
+    cardId: Joi.string().required().hex().length(24),
+  }),
+};

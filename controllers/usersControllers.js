@@ -1,12 +1,12 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
 const jsonwebtoken = require('jsonwebtoken');
-const User = require('../models/userSchema');
+const User = require('../models/userSchema').userSchema;
 
 const {
   ApplicationError, NotFoundError, UnauthorizedError, INTERNAL_SERVER_ERROR,
   NOT_FOUND, BAD_REQUEST, UNAUTHORIZED, ALREADY_EXIST,
-} = require('./errors');
+} = require('../middleware/errors');
 
 function getUsers(req, res) {
   return User.find({})
@@ -49,7 +49,7 @@ function createUser(req, res) {
     .then((user) => res.status(201).send(user))
     .catch((error) => {
       if (error instanceof mongoose.Error.ValidationError) {
-        res.status(BAD_REQUEST).send({ message: 'Поле должно быть валидным email' });
+        res.status(BAD_REQUEST).send({ message: 'Невалидно одно из полей' });
       } else if (error.code === 11000) {
         res.status(ALREADY_EXIST).send({ message: 'Пользователь с таким email существует' });
       } else {

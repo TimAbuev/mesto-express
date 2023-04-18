@@ -1,10 +1,10 @@
 const mongoose = require('mongoose');
-const Card = require('../models/cardSchema');
+const Card = require('../models/cardSchema').cardSchema;
 
 const {
   ApplicationError, NotFoundError, ValidationError, OtherCardError,
   INTERNAL_SERVER_ERROR, NOT_FOUND, BAD_REQUEST, OTHER_CARD,
-} = require('./errors');
+} = require('../middleware/errors');
 
 function getCards(req, res) {
   return Card.find({})

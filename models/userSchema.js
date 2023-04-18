@@ -1,6 +1,7 @@
 /* eslint-disable no-useless-escape */
 const mongoose = require('mongoose');
 const validator = require('validator');
+const Joi = require('joi');
 
 const userSchema = new mongoose.Schema({
   name: {
@@ -22,6 +23,7 @@ const userSchema = new mongoose.Schema({
       validator(v) {
         return /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)/.test(v);
       },
+      message: 'ошибка валидации ссылки на аватар',
     },
   },
   email: {
@@ -42,4 +44,17 @@ const userSchema = new mongoose.Schema({
   },
 });
 
-module.exports = mongoose.model('user', userSchema);
+module.exports = {
+  userSchema: mongoose.model('user', userSchema),
+  signUserSchema: Joi.object({
+    email: Joi.string().email().required(),
+    password: Joi.string().min(8).required(),
+  }),
+  profileUserSchema: Joi.object({
+    name: Joi.string().min(2).max(30),
+    about: Joi.string().min(2).max(30),
+  }),
+  avatarUserSchema: Joi.object({
+    avatar: Joi.string().uri(),
+  }),
+};
