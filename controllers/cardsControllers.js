@@ -23,7 +23,7 @@ function getCards(req, res) {
 
 function createCard(req, res) {
   return Card.create({ ...req.body, owner: req.user._id })
-    .then((card) => res.status(200).send(card))
+    .then((card) => res.status(201).send(card))
     .catch((error) => {
       if (error instanceof mongoose.Error.ValidationError) {
         throw new ValidationError();
