@@ -34,7 +34,7 @@ module.exports = {
   cardSchema: mongoose.model('card', cardSchema),
   postSchema: Joi.object({
     name: Joi.string().min(2).max(30).required(),
-    link: Joi.string().uri(),
+    link: Joi.string().uri().required(),
   }),
   paramSchema: Joi.object({
     cardId: Joi.string().required().hex().length(24),
