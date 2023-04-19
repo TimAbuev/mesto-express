@@ -45,15 +45,15 @@ function deleteCard(req, res) {
   const userId = req.user._id;
 
   Card.findById({ _id: cardId })
+    .orFail(() => {
+      throw new NotFoundError();
+    })
     .then((card) => {
       if (userId !== card.owner.toString()) {
         console.log(`req.user._id = ${typeof userId}; card.owner = ${typeof card.owner}`);
         throw new OtherCardError();
       }
-      return Card.findByIdAndRemove({ _id: cardId })
-        .orFail(() => {
-          throw new NotFoundError();
-        });
+      return Card.deleteOne({ _id: cardId });
     })
     .then((card) => res.status(200).send(card))
     .catch((error) => {
