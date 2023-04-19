@@ -7,33 +7,36 @@ const ALREADY_EXIST = 409;
 const OTHER_CARD = 403;
 
 class ApplicationError extends Error {
-  constructor(status = 500, message = 'Internal Error', name = 'Internal Server Error') {
-    super();
+  constructor(message = 'Internal Error', status = INTERNAL_SERVER_ERROR, name = 'Internal Server Error') {
+    super(message);
     this.status = status;
-    this.message = message;
     this.name = name;
 
     Error.captureStackTrace(this, this.constructor);
   }
 }
+
 class NotFoundError extends ApplicationError {
-  constructor() {
-    super(404, 'Resource is not found', 'NotFound');
+  constructor(message = 'Resource is not found') {
+    super(message, NOT_FOUND, 'NotFound');
   }
 }
+
 class ValidationError extends ApplicationError {
-  constructor() {
-    super(400, 'Incorrect data', 'ValidationProblem');
+  constructor(message = 'Incorrect data') {
+    super(message, BAD_REQUEST, 'ValidationProblem');
   }
 }
+
 class UnauthorizedError extends ApplicationError {
-  constructor() {
-    super(401, 'UNAUTHORIZED', 'UNAUTHORIZED');
+  constructor(message = 'UNAUTHORIZED') {
+    super(message, UNAUTHORIZED, 'Unauthorized');
   }
 }
+
 class OtherCardError extends ApplicationError {
-  constructor() {
-    super(403, 'OtherCard', 'this is not your card');
+  constructor(message = 'This is not your card') {
+    super(message, OTHER_CARD, 'OtherCard');
   }
 }
 

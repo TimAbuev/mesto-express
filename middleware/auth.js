@@ -1,11 +1,11 @@
 const jsonwebtoken = require('jsonwebtoken');
-const { UNAUTHORIZED } = require('./errors');
+const { UnauthorizedError } = require('./errors');
 
 function auth(req, res, next) {
   const { authorization } = req.headers;
 
   if (!authorization || !authorization.startsWith('Bearer')) {
-    res.status(401).send({ message: 'необходима авторизация' });
+    throw new UnauthorizedError();
   }
 
   let payload;
@@ -14,7 +14,7 @@ function auth(req, res, next) {
     payload = jsonwebtoken.verify(jwt, 'shhhhh');
     console.log(payload);
   } catch {
-    res.status(UNAUTHORIZED).send({ message: 'необходима авторизация' });
+    throw new UnauthorizedError();
   }
 
   req.user = payload;
