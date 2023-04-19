@@ -125,21 +125,8 @@ function refreshAvatar(req, res) {
 }
 
 function getCurrentUser(req, res) {
-  const { authorization } = req.headers;
-
-  if (!authorization || !authorization.startsWith('Bearer')) {
-    res.status(401).send({ message: 'необходима авторизация' });
-  }
-
-  let payload;
-  const jwt = authorization.replace('Bearer ', '');
-  try {
-    payload = jsonwebtoken.verify(jwt, 'shhhhh');
-  } catch {
-    res.status(UNAUTHORIZED).send({ message: 'необходима авторизация' });
-  }
   User
-    .findById(payload._id)
+    .findById(req.user._id)
     .orFail(() => { throw new NotFoundError(); })
     .then((user) => res.send(user))
     .catch((err) => {

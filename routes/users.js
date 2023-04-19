@@ -6,7 +6,7 @@ const {
 const auth = require('../middleware/auth');
 const { signUserSchema, profileUserSchema, avatarUserSchema } = require('../models/userSchema');
 
-router.get('/me', getCurrentUser);
+router.get('/me', auth, getCurrentUser);
 router.get('/:userId', auth, getUser);
 router.get('/', auth, getUsers);
 router.patch('/me', auth, celebrate({ body: profileUserSchema }), refreshProfile);
