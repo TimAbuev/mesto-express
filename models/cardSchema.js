@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const validator = require('validator');
 const Joi = require('joi');
 
 const cardSchema = new mongoose.Schema(
@@ -12,6 +13,11 @@ const cardSchema = new mongoose.Schema(
     link: {
       type: String,
       required: true,
+      validate: {
+        validator(value) {
+          return validator.isURL(value);
+        },
+      },
     },
     owner: {
       type: mongoose.Schema.Types.ObjectId,
@@ -35,7 +41,7 @@ module.exports = {
   cardSchema: mongoose.model('card', cardSchema),
   postSchema: Joi.object({
     name: Joi.string().min(2).max(30).required(),
-    link: Joi.string().uri().required(),
+    link: Joi.string().regex(/https?:\/\/(www\.)?[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_+.~#?&//=]*)/).required(),
   }),
   paramSchema: Joi.object({
     cardId: Joi.string().required().hex().length(24),
