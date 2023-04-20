@@ -7,7 +7,7 @@ const {
 } = require('../middleware/errors');
 
 function getCards(req, res) {
-  return Card.find({}).populate('owner')
+  return Card.find({}).populate('owner').populate('likes')
     .orFail(() => {
       throw new NotFoundError();
     })
@@ -23,6 +23,7 @@ function getCards(req, res) {
 
 function createCard(req, res) {
   return Card.create({ ...req.body, owner: req.user._id })
+    .then((card) => Card.populate(card, { path: 'owner' }, { path: 'likes' }))
     .then((card) => res.status(201).send(card))
     .catch((error) => {
       if (error instanceof mongoose.Error.ValidationError) {
@@ -99,7 +100,7 @@ function removeLike(req, res) {
     cardId,
     { $pull: { likes: req.user._id } }, // убрать _id из массива
     { new: true },
-  )
+  ).populate('owner').populate('likes')
     .orFail(() => {
       throw new NotFoundError();
     })
