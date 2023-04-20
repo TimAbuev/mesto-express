@@ -7,7 +7,7 @@ const {
 } = require('../middleware/errors');
 
 function getCards(req, res) {
-  return Card.find({})
+  return Card.find({}).populate('owner')
     .orFail(() => {
       throw new NotFoundError();
     })
@@ -76,7 +76,7 @@ function addLike(req, res) {
     cardId,
     { $addToSet: { likes: req.user._id } }, // добавить _id в массив, если его там нет
     { new: true },
-  )
+  ).populate('owner').populate('likes')
     .orFail(() => {
       throw new NotFoundError();
     })
