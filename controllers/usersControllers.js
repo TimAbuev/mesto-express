@@ -40,13 +40,14 @@ function getUser(req, res) {
 }
 
 function createUser(req, res) {
-  const { password } = req.body;
-  if (password.length < 8) {
-    return res.status(BAD_REQUEST).send({ message: 'Длина пароля должна быть не менее 8 символов' });
-  }
-  return bcrypt.hash(password, 10)
-    .then((hash) => User.create({ ...req.body, password: hash }))
-    .then((user) => res.status(201).send(user))
+  const { password: userPassword, ...userProps } = req.body;
+  if (userPassword.length < 8) { return res.status(BAD_REQUEST).send({ message: 'Длина пароля должна быть не менее 8 символов' }); }
+  return bcrypt.hash(userPassword, 10)
+    .then((hash) => User.create({ ...userProps, password: hash }))
+    .then((user) => {
+      const { password, ...userWithoutPassword } = user.toObject();
+      return res.status(201).send(userWithoutPassword);
+    })
     .catch((error) => {
       if (error instanceof mongoose.Error.ValidationError) {
         res.status(BAD_REQUEST).send({ message: 'Невалидно одно из полей' });
