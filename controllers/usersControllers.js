@@ -60,14 +60,14 @@ function createUser(req, res) {
 }
 
 function login(req, res) {
-  const { email, password } = req.body;
+  const { email, password: userPassword } = req.body;
 
   User
     .findOne({ email }).select('+password')
     .orFail(() => {
       throw new UnauthorizedError();
     })
-    .then((user) => bcrypt.compare(password, user.password)
+    .then((user) => bcrypt.compare(userPassword, user.password)
       .then((matched) => {
         if (matched) {
           return user;
@@ -76,7 +76,8 @@ function login(req, res) {
       }))
     .then((user) => {
       const jwt = jsonwebtoken.sign({ _id: user._id }, 'shhhhh', { expiresIn: '7d' });
-      res.send({ user, jwt });
+      const { password, ...userWithoutPassword } = user.toObject();
+      res.send({ user: userWithoutPassword, jwt });
     })
     .catch((error) => {
       if (error instanceof UnauthorizedError) {
