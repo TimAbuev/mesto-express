@@ -2,25 +2,17 @@ const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
 const jsonwebtoken = require('jsonwebtoken');
 const User = require('../models/userSchema').userSchema;
+const errorHandler = require('../middleware/errorHandler');
 
 const {
   ApplicationError, NotFoundError, UnauthorizedError, INTERNAL_SERVER_ERROR,
   NOT_FOUND, BAD_REQUEST, UNAUTHORIZED, ALREADY_EXIST,
 } = require('../middleware/errors');
 
-function getUsers(req, res) {
+function getUsers(req, res, next) {
   return User.find({})
-    .orFail(() => {
-      throw new NotFoundError();
-    })
     .then((users) => res.status(200).send(users))
-    .catch((error) => {
-      if (error instanceof ApplicationError) {
-        res.status(error.status).send({ message: error.message });
-      } else {
-        res.status(INTERNAL_SERVER_ERROR).send({ message: 'Something went wrong.' });
-      }
-    });
+    .catch((error) => errorHandler(error, req, res, next));
 }
 
 function getUser(req, res) {

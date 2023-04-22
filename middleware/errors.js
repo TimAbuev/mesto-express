@@ -40,12 +40,19 @@ class OtherCardError extends ApplicationError {
   }
 }
 
+class AlreadyExistError extends ApplicationError {
+  constructor(message = 'AlreadyExist') {
+    super(message, ALREADY_EXIST, 'Already Exist');
+  }
+}
+
 module.exports = {
   ApplicationError,
   NotFoundError,
   ValidationError,
   UnauthorizedError,
   OtherCardError,
+  AlreadyExistError,
   INTERNAL_SERVER_ERROR,
   NOT_FOUND,
   BAD_REQUEST,
