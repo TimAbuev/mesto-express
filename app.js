@@ -9,7 +9,14 @@ const { PORT = 3000 } = process.env;
 const app = express();
 
 app.use(bodyParser.json());
+
 app.use(routes);
+app.use((req, res, next) => {
+  const error = new Error('Not found');
+  error.statusCode = 404;
+  next(error);
+});
+
 // app.use(errors());
 
 mongoose.connect('mongodb://localhost:27017/mestodb', {

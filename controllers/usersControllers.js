@@ -12,22 +12,15 @@ const {
 function getUsers(req, res, next) {
   return User.find({})
     .then((users) => res.status(200).send(users))
-    .catch((error) => errorHandler(error, req, res, next));
+    .catch((err) => next(err));
 }
 
-function getUser(req, res) {
+function getUser(req, res, next) {
   const { userId } = req.params;
   return User.findById(userId)
-    .orFail(() => {
-      throw new NotFoundError();
-    })
     .then((user) => res.status(200).send(user))
     .catch((error) => {
-      if (error instanceof ApplicationError) {
-        res.status(error.status).send({ message: error.message });
-      } else {
-        res.status(INTERNAL_SERVER_ERROR).send({ message: 'Something went wrong.' });
-      }
+      errorHandler(error, req, res, next);
     });
 }
 
@@ -41,24 +34,14 @@ function createUser(req, res) {
       return res.status(201).send(userWithoutPassword);
     })
     .catch((error) => {
-      if (error instanceof mongoose.Error.ValidationError) {
-        res.status(BAD_REQUEST).send({ message: 'Невалидно одно из полей' });
-      } else if (error.code === 11000) {
-        res.status(ALREADY_EXIST).send({ message: 'Пользователь с таким email существует' });
-      } else {
-        res.status(INTERNAL_SERVER_ERROR).send({ message: 'Something went wrong.' });
-      }
+      errorHandler(error, req, res);
     });
 }
 
 function login(req, res) {
   const { email, password: userPassword } = req.body;
-
   User
     .findOne({ email }).select('+password')
-    .orFail(() => {
-      throw new UnauthorizedError();
-    })
     .then((user) => bcrypt.compare(userPassword, user.password)
       .then((matched) => {
         if (matched) {
@@ -75,7 +58,7 @@ function login(req, res) {
       if (error instanceof UnauthorizedError) {
         res.status(UNAUTHORIZED).send({ message: error.message });
       } else {
-        res.status(INTERNAL_SERVER_ERROR).send({ message: 'Something went wrong.' });
+        errorHandler(error, req, res);
       }
     });
 }

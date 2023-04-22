@@ -5,7 +5,7 @@ function auth(req, res, next) {
   const { authorization } = req.headers;
 
   if (!authorization || !authorization.startsWith('Bearer')) {
-    throw new UnauthorizedError();
+    res.status(400).send({ message: 'не авторизован 1' });
   }
 
   let payload;
@@ -14,7 +14,7 @@ function auth(req, res, next) {
     payload = jsonwebtoken.verify(jwt, 'shhhhh');
     console.log(payload);
   } catch {
-    throw new UnauthorizedError();
+    res.status(400).send({ message: 'не авторизован 2' });
   }
 
   req.user = payload;
