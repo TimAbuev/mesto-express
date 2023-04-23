@@ -69,22 +69,11 @@ function refreshProfile(req, res, next) {
     .catch((error) => { errorHandler(error, req, res, next); });
 }
 
-function refreshAvatar(req, res) {
+function refreshAvatar(req, res, next) {
   // eslint-disable-next-line max-len
   return User.findByIdAndUpdate(req.user._id, { avatar: req.body.avatar }, { new: true, runValidators: true })
-    .orFail(() => {
-      throw new NotFoundError();
-    })
     .then(() => res.status(200).send(req.body))
-    .catch((error) => {
-      if (error instanceof NotFoundError) {
-        res.status(NOT_FOUND).send({ message: error.message });
-      } else if (mongoose.Error.ValidationError) {
-        res.status(BAD_REQUEST).send({ message: 'невалидная ссылка' });
-      } else {
-        res.status(INTERNAL_SERVER_ERROR).send({ message: 'Something went wrong.' });
-      }
-    });
+    .catch((error) => { errorHandler(error, req, res, next); });
 }
 
 function getCurrentUser(req, res) {
