@@ -10,6 +10,6 @@ router.get('/me', auth, getCurrentUser);
 router.get('/:userId', auth, getUser);
 router.get('/', auth, getUsers);
 router.patch('/me', auth, celebrate({ body: profileUserSchema }), refreshProfile);
-router.patch('/me/avatar', auth, refreshAvatar);
+router.patch('/me/avatar', auth, celebrate({ body: avatarUserSchema }), refreshAvatar);
 
 module.exports = router;
