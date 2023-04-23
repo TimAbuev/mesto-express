@@ -60,24 +60,13 @@ function login(req, res, next) {
     .catch((error) => { errorHandler(error, req, res, next); });
 }
 
-function refreshProfile(req, res) {
+function refreshProfile(req, res, next) {
   // eslint-disable-next-line max-len
   return User.findByIdAndUpdate(req.user._id, { name: req.body.name, about: req.body.about }, { new: true, runValidators: true })
-    .orFail(() => {
-      throw new NotFoundError();
-    })
     .then(() => {
       res.status(200).send(req.body);
     })
-    .catch((error) => {
-      if (error instanceof mongoose.Error.ValidationError) {
-        res.status(BAD_REQUEST).send({ message: error.message });
-      } else if (error instanceof NotFoundError) {
-        res.status(NOT_FOUND).send({ message: error.message });
-      } else {
-        res.status(INTERNAL_SERVER_ERROR).send({ message: 'Something went wrong.' });
-      }
-    });
+    .catch((error) => { errorHandler(error, req, res, next); });
 }
 
 function refreshAvatar(req, res) {

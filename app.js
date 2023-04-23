@@ -28,6 +28,7 @@ app.use((err, req, res, next) => {
     console.log(err);
   } else {
     res.status(500).send({ error: 'Internal server errorrrr' });
+    console.log(err);
   }
 });
 
