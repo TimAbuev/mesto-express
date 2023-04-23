@@ -1,11 +1,11 @@
 const jsonwebtoken = require('jsonwebtoken');
-const { UnauthorizedError } = require('./errors');
+const { UnauthorizedError } = require('../errors/UnauthorizedError');
 
 function auth(req, res, next) {
   const { authorization } = req.headers;
 
   if (!authorization || !authorization.startsWith('Bearer')) {
-    res.status(400).send({ message: 'не авторизован 1' });
+    throw new UnauthorizedError('нет токена');
   }
 
   let payload;
@@ -14,7 +14,7 @@ function auth(req, res, next) {
     payload = jsonwebtoken.verify(jwt, 'shhhhh');
     console.log(payload);
   } catch {
-    res.status(400).send({ message: 'не авторизован 2' });
+    throw new UnauthorizedError('неверный токен');
   }
 
   req.user = payload;

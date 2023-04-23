@@ -9,21 +9,20 @@ const { PORT = 3000 } = process.env;
 const app = express();
 
 app.use(bodyParser.json());
-
 app.use(routes);
-app.use((req, res, next) => {
-  const error = new Error('Not found');
-  error.statusCode = 404;
-  next(error);
-});
-
 // app.use(errors());
 
 mongoose.connect('mongodb://localhost:27017/mestodb', {
   useNewUrlParser: true,
-  // useCreateIndex: true,
-  // useFindAndModify: false,
   useUnifiedTopology: true,
+});
+
+app.use((err, req, res, next) => {
+  if (err.statusCode) {
+    res.status(err.statusCode).send({ error: err.message });
+  } else {
+    res.status(500).send({ error: 'Internal server errorrrr' });
+  }
 });
 
 app.listen(PORT, () => {

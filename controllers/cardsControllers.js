@@ -1,10 +1,13 @@
 const mongoose = require('mongoose');
 const Card = require('../models/cardSchema').cardSchema;
 
+// const { UnauthorizedError } = require('../errors/UnauthorizedError');
+const { NotFoundError } = require('../errors/NotFoundError');
 const {
-  ApplicationError, NotFoundError, ValidationError, OtherCardError,
-  INTERNAL_SERVER_ERROR, NOT_FOUND, BAD_REQUEST, OTHER_CARD,
-} = require('../middleware/errors');
+  INTERNAL_SERVER_ERROR,
+  NOT_FOUND,
+  BAD_REQUEST,
+} = require('../errors/statusCodes');
 
 function getCards(req, res) {
   return Card.find({}).populate('owner').populate('likes')
