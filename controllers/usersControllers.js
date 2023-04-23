@@ -4,7 +4,7 @@ const jsonwebtoken = require('jsonwebtoken');
 
 const User = require('../models/userSchema').userSchema;
 const errorHandler = require('../middleware/errorHandler');
-const { UnauthorizedError } = require('../errors/UnauthorizedError');
+// const { UnauthorizedError } = require('../errors/UnauthorizedError');
 const { NotFoundError } = require('../errors/NotFoundError');
 const {
   INTERNAL_SERVER_ERROR,
@@ -23,12 +23,10 @@ function getUser(req, res, next) {
   const { userId } = req.params;
   return User.findById(userId)
     .then((user) => res.status(200).send(user))
-    .catch((error) => {
-      errorHandler(error, req, res, next);
-    });
+    .catch((error) => { errorHandler(error, req, res, next); });
 }
 
-function createUser(req, res) {
+function createUser(req, res, next) {
   const { password: userPassword, ...userProps } = req.body;
   if (userPassword.length < 8) { return res.status(BAD_REQUEST).send({ message: 'Длина пароля должна быть не менее 8 символов' }); }
   return bcrypt.hash(userPassword, 10)
@@ -37,34 +35,29 @@ function createUser(req, res) {
       const { password, ...userWithoutPassword } = user.toObject();
       return res.status(201).send(userWithoutPassword);
     })
-    .catch((error) => {
-      errorHandler(error, req, res);
-    });
+    .catch((error) => { errorHandler(error, req, res, next); });
 }
 
-function login(req, res) {
+function login(req, res, next) {
   const { email, password: userPassword } = req.body;
   User
     .findOne({ email }).select('+password')
+    .orFail(() => {
+      res.status(UNAUTHORIZED).send({ message: 'неверный логин или пароль' });
+    })
     .then((user) => bcrypt.compare(userPassword, user.password)
       .then((matched) => {
         if (matched) {
           return user;
         }
-        throw new UnauthorizedError();
+        return res.status(UNAUTHORIZED).send({ message: 'неверный логин или пароль' });
       }))
     .then((user) => {
       const jwt = jsonwebtoken.sign({ _id: user._id }, 'shhhhh', { expiresIn: '7d' });
       const { password, ...userWithoutPassword } = user.toObject();
       res.send({ user: userWithoutPassword, jwt });
     })
-    .catch((error) => {
-      if (error instanceof UnauthorizedError) {
-        res.status(UNAUTHORIZED).send({ message: error.message });
-      } else {
-        errorHandler(error, req, res);
-      }
-    });
+    .catch((error) => { errorHandler(error, req, res, next); });
 }
 
 function refreshProfile(req, res) {
