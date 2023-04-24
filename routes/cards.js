@@ -8,7 +8,7 @@ const { postSchema, paramSchema } = require('../models/cardSchema');
 
 router.get('/', auth, getCards);
 router.post('/', auth, celebrate({ body: postSchema }), createCard);
-router.delete('/:cardId', auth, celebrate({ params: paramSchema }), deleteCard);
+router.delete('/:cardId', auth, deleteCard);
 router.put('/:cardId/likes', auth, celebrate({ params: paramSchema }), addLike);
 router.delete('/:cardId/likes', auth, celebrate({ params: paramSchema }), removeLike);
 

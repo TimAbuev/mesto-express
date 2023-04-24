@@ -1,9 +1,9 @@
-const mongoose = require('mongoose');
 const Card = require('../models/cardSchema').cardSchema;
 const errorHandler = require('../middleware/errorHandler');
 
 // const { UnauthorizedError } = require('../errors/UnauthorizedError');
 const { NotFoundError } = require('../errors/NotFoundError');
+const { OtherCardError } = require('../errors/OtherCardError');
 const {
   INTERNAL_SERVER_ERROR,
   NOT_FOUND,
@@ -23,14 +23,11 @@ function createCard(req, res, next) {
     .catch((error) => { errorHandler(error, req, res, next); });
 }
 
-function deleteCard(req, res) {
+function deleteCard(req, res, next) {
   const { cardId } = req.params;
   const userId = req.user._id;
 
   Card.findById({ _id: cardId })
-    .orFail(() => {
-      throw new NotFoundError();
-    })
     .then((card) => {
       if (userId !== card.owner.toString()) {
         console.log(`req.user._id = ${typeof userId}; card.owner = ${typeof card.owner}`);
@@ -39,16 +36,8 @@ function deleteCard(req, res) {
       return Card.deleteOne({ _id: cardId });
     })
     .then((card) => res.status(200).send(card))
-    .catch((error) => {
-      if (error.name === 'CastError' && error.kind === 'ObjectId') {
-        res.status(BAD_REQUEST).send({ message: error.message });
-      } else if (error instanceof NotFoundError) {
-        res.status(NOT_FOUND).send({ message: error.message });
-      } else if (error instanceof OtherCardError) {
-        res.status(OTHER_CARD).send({ message: error.message });
-      } else {
-        res.status(INTERNAL_SERVER_ERROR).send({ message: 'Something went wrong.' });
-      }
+    .catch((err) => {
+      errorHandler(err, req, res, next);
     });
 }
 

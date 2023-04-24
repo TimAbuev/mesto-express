@@ -19,7 +19,7 @@ mongoose.connect('mongodb://localhost:27017/mestodb', {
 });
 
 app.use((req, res, next) => {
-  next(new NotFoundError('Not found'));
+  next(new NotFoundError('Not found 123'));
 });
 
 app.use((err, req, res, next) => {
