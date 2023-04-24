@@ -1,17 +1,9 @@
-const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
 const jsonwebtoken = require('jsonwebtoken');
 
 const User = require('../models/userSchema').userSchema;
 const errorHandler = require('../middleware/errorHandler');
-// const { UnauthorizedError } = require('../errors/UnauthorizedError');
-const { NotFoundError } = require('../errors/NotFoundError');
-const {
-  INTERNAL_SERVER_ERROR,
-  NOT_FOUND,
-  BAD_REQUEST,
-  UNAUTHORIZED,
-} = require('../errors/statusCodes');
+const { BAD_REQUEST, UNAUTHORIZED } = require('../errors/statusCodes');
 
 function getUsers(req, res, next) {
   return User.find({})

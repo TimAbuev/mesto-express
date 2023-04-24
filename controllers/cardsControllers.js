@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const Card = require('../models/cardSchema').cardSchema;
+const errorHandler = require('../middleware/errorHandler');
 
 // const { UnauthorizedError } = require('../errors/UnauthorizedError');
 const { NotFoundError } = require('../errors/NotFoundError');
@@ -9,39 +10,17 @@ const {
   BAD_REQUEST,
 } = require('../errors/statusCodes');
 
-function getCards(req, res) {
+function getCards(req, res, next) {
   return Card.find({}).populate('owner').populate('likes')
-    .orFail(() => {
-      throw new NotFoundError();
-    })
     .then((cards) => res.status(200).send(cards))
-    .catch((error) => {
-      if (error instanceof ApplicationError) {
-        res.status(error.status).send({ message: error.message });
-      } else {
-        res.status(INTERNAL_SERVER_ERROR).send({ message: 'Something went wrong.' });
-      }
-    });
+    .catch((error) => { errorHandler(error, req, res, next); });
 }
 
-function createCard(req, res) {
+function createCard(req, res, next) {
   return Card.create({ ...req.body, owner: req.user._id })
     .then((card) => Card.populate(card, { path: 'owner' }, { path: 'likes' }))
     .then((card) => res.status(201).send(card))
-    .catch((error) => {
-      if (error instanceof mongoose.Error.ValidationError) {
-        throw new ValidationError();
-      } else {
-        throw new ApplicationError();
-      }
-    })
-    .catch((error) => {
-      if (error instanceof ApplicationError) {
-        res.status(error.status).send({ message: error.message });
-      } else {
-        res.status(INTERNAL_SERVER_ERROR).send({ message: 'Something went wrong.' });
-      }
-    });
+    .catch((error) => { errorHandler(error, req, res, next); });
 }
 
 function deleteCard(req, res) {
