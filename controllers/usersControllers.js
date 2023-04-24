@@ -76,18 +76,11 @@ function refreshAvatar(req, res, next) {
     .catch((error) => { errorHandler(error, req, res, next); });
 }
 
-function getCurrentUser(req, res) {
+function getCurrentUser(req, res, next) {
   User
     .findById(req.user._id)
-    .orFail(() => { throw new NotFoundError(); })
     .then((user) => res.send(user))
-    .catch((err) => {
-      if (err instanceof NotFoundError) {
-        res.status(NOT_FOUND).send({ message: err.message });
-      } else {
-        res.status(INTERNAL_SERVER_ERROR).send({ message: 'Something went wrong.' });
-      }
-    });
+    .catch((error) => { errorHandler(error, req, res, next); });
 }
 
 module.exports = {
