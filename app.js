@@ -19,16 +19,14 @@ mongoose.connect('mongodb://localhost:27017/mestodb', {
 });
 
 app.use((req, res, next) => {
-  next(new NotFoundError('Not found 123'));
+  next(new NotFoundError('Not found'));
 });
 
 app.use((err, req, res, next) => {
   if (err.statusCode) {
     res.status(err.statusCode).send({ error: err.message });
-    console.log(err);
   } else {
     res.status(500).send({ error: 'Internal server errorrrr' });
-    console.log(err);
     next();
   }
 });

@@ -20,7 +20,9 @@ function getUser(req, res, next) {
 
 function createUser(req, res, next) {
   const { password: userPassword, ...userProps } = req.body;
-  if (userPassword.length < 8) { return res.status(BAD_REQUEST).send({ message: 'Длина пароля должна быть не менее 8 символов' }); }
+  if (userPassword.length < 8) {
+    return res.status(BAD_REQUEST).send({ message: 'Длина пароля должна быть не менее 8 символов' });
+  }
   return bcrypt.hash(userPassword, 10)
     .then((hash) => User.create({ ...userProps, password: hash }))
     .then((user) => {
@@ -53,8 +55,11 @@ function login(req, res, next) {
 }
 
 function refreshProfile(req, res, next) {
-  // eslint-disable-next-line max-len
-  return User.findByIdAndUpdate(req.user._id, { name: req.body.name, about: req.body.about }, { new: true, runValidators: true })
+  return User.findByIdAndUpdate(
+    req.user._id,
+    { name: req.body.name, about: req.body.about },
+    { new: true, runValidators: true },
+  )
     .then(() => {
       res.status(200).send(req.body);
     })
@@ -62,8 +67,11 @@ function refreshProfile(req, res, next) {
 }
 
 function refreshAvatar(req, res, next) {
-  // eslint-disable-next-line max-len
-  return User.findByIdAndUpdate(req.user._id, { avatar: req.body.avatar }, { new: true, runValidators: true })
+  return User.findByIdAndUpdate(
+    req.user._id,
+    { avatar: req.body.avatar },
+    { new: true, runValidators: true },
+  )
     .then(() => res.status(200).send(req.body))
     .catch((error) => { errorHandler(error, req, res, next); });
 }
