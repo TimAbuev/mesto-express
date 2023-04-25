@@ -54,27 +54,25 @@ function login(req, res, next) {
     .catch((error) => { errorHandler(error, req, res, next); });
 }
 
-function refreshProfile(req, res, next) {
-  return User.findByIdAndUpdate(
-    req.user._id,
-    { name: req.body.name, about: req.body.about },
-    { new: true, runValidators: true },
-  )
-    .then(() => {
-      res.status(200).send(req.body);
-    })
-    .catch((error) => { errorHandler(error, req, res, next); });
+function updateUser(updateData) {
+  return function (req, res, next) {
+    return User.findByIdAndUpdate(
+      req.user._id,
+      updateData(req),
+      { new: true, runValidators: true },
+    )
+      .then(() => {
+        res.status(200).send(req.body);
+      })
+      .catch((error) => {
+        errorHandler(error, req, res, next);
+      });
+  };
 }
 
-function refreshAvatar(req, res, next) {
-  return User.findByIdAndUpdate(
-    req.user._id,
-    { avatar: req.body.avatar },
-    { new: true, runValidators: true },
-  )
-    .then(() => res.status(200).send(req.body))
-    .catch((error) => { errorHandler(error, req, res, next); });
-}
+const updateProfile = updateUser((req) => ({ name: req.body.name, about: req.body.about }));
+
+const updateAvatar = updateUser((req) => ({ avatar: req.body.avatar }));
 
 function getCurrentUser(req, res, next) {
   User
@@ -84,5 +82,5 @@ function getCurrentUser(req, res, next) {
 }
 
 module.exports = {
-  getUser, getUsers, createUser, refreshProfile, refreshAvatar, login, getCurrentUser,
+  getUser, getUsers, createUser, updateProfile, updateAvatar, login, getCurrentUser,
 };
