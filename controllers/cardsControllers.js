@@ -1,14 +1,7 @@
 const Card = require('../models/cardSchema').cardSchema;
 const errorHandler = require('../middleware/errorHandler');
-
-// const { UnauthorizedError } = require('../errors/UnauthorizedError');
 const { NotFoundError } = require('../errors/NotFoundError');
 const { OtherCardError } = require('../errors/OtherCardError');
-const {
-  INTERNAL_SERVER_ERROR,
-  NOT_FOUND,
-  BAD_REQUEST,
-} = require('../errors/statusCodes');
 
 function getCards(req, res, next) {
   return Card.find({}).populate('owner').populate('likes')
@@ -58,7 +51,7 @@ function addLike(req, res, next) {
     });
 }
 
-function removeLike(req, res) {
+function removeLike(req, res, next) {
   const { cardId } = req.params;
 
   return Card.findByIdAndUpdate(
@@ -70,14 +63,8 @@ function removeLike(req, res) {
       throw new NotFoundError();
     })
     .then((card) => res.status(200).send(card))
-    .catch((error) => {
-      if (error.name === 'CastError' && error.kind === 'ObjectId') {
-        res.status(BAD_REQUEST).send({ message: error.message });
-      } else if (error instanceof NotFoundError) {
-        res.status(NOT_FOUND).send({ message: error.message });
-      } else {
-        res.status(INTERNAL_SERVER_ERROR).send({ message: 'Something went wrong.' });
-      }
+    .catch((err) => {
+      errorHandler(err, req, res, next);
     });
 }
 
