@@ -4,7 +4,7 @@ const { NotFoundError } = require('../errors/NotFoundError');
 const { OtherCardError } = require('../errors/OtherCardError');
 
 function getCards(req, res, next) {
-  return Card.find({}).populate('owner').populate('likes')
+  return Card.find({}).populate(['owner', 'likes'])
     .then((cards) => res.status(200).send(cards))
     .catch((error) => { errorHandler(error, req, res, next); });
 }
@@ -41,7 +41,7 @@ function addLike(req, res, next) {
     cardId,
     { $addToSet: { likes: req.user._id } }, // добавить _id в массив, если его там нет
     { new: true },
-  ).populate('owner').populate('likes')
+  ).populate(['owner', 'likes'])
     .orFail(() => {
       throw new NotFoundError();
     })
@@ -58,7 +58,7 @@ function removeLike(req, res, next) {
     cardId,
     { $pull: { likes: req.user._id } }, // убрать _id из массива
     { new: true },
-  ).populate('owner').populate('likes')
+  ).populate(['owner', 'likes'])
     .orFail(() => {
       throw new NotFoundError();
     })
