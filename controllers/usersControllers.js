@@ -3,7 +3,8 @@ const jsonwebtoken = require('jsonwebtoken');
 
 const User = require('../models/userSchema').userSchema;
 const errorHandler = require('../middleware/errorHandler');
-const { BAD_REQUEST, UNAUTHORIZED } = require('../errors/statusCodes');
+const { BAD_REQUEST } = require('../errors/statusCodes');
+const { UnauthorizedError } = require('../errors/UnauthorizedError');
 
 function getUsers(req, res, next) {
   return User.find({})
@@ -37,14 +38,14 @@ function login(req, res, next) {
   User
     .findOne({ email }).select('+password')
     .orFail(() => {
-      res.status(UNAUTHORIZED).send({ message: 'неверный логин или пароль' });
+      throw new UnauthorizedError('неверный логин или пароль');
     })
     .then((user) => bcrypt.compare(userPassword, user.password)
       .then((matched) => {
         if (matched) {
           return user;
         }
-        return res.status(UNAUTHORIZED).send({ message: 'неверный логин или пароль' });
+        throw new UnauthorizedError('неверный логин или пароль');
       }))
     .then((user) => {
       const jwt = jsonwebtoken.sign({ _id: user._id }, 'shhhhh', { expiresIn: '7d' });
