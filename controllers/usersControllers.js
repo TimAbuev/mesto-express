@@ -1,10 +1,8 @@
-// const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
 const jsonwebtoken = require('jsonwebtoken');
 
 const User = require('../models/userSchema').userSchema;
 const errorHandler = require('../middleware/errorHandler');
-const { BAD_REQUEST } = require('../errors/statusCodes');
 const { UnauthorizedError } = require('../errors/UnauthorizedError');
 
 function getUsers(req, res, next) {
@@ -22,9 +20,6 @@ function getUser(req, res, next) {
 
 function createUser(req, res, next) {
   const { password: userPassword, ...userProps } = req.body;
-  if (userPassword.length < 8) {
-    return res.status(BAD_REQUEST).send({ message: 'Длина пароля должна быть не менее 8 символов' });
-  }
   return bcrypt.hash(userPassword, 10)
     .then((hash) => User.create({ ...userProps, password: hash }))
     .then((user) => {
