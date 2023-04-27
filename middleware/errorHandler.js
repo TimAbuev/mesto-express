@@ -21,7 +21,7 @@ function errorHandler(error, req, res, next) {
   } else if (error instanceof mongoose.Error.CastError) {
     res.status(BAD_REQUEST).send({ message: error.message });
   } else {
-    next();
+    next(error);
   }
 }
 
