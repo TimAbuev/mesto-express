@@ -34,40 +34,27 @@ function deleteCard(req, res, next) {
     });
 }
 
-function addLike(req, res, next) {
-  const { cardId } = req.params;
+function updateLike(updateData) {
+  return (req, res, next) => {
+    const { cardId } = req.params;
 
-  return Card.findByIdAndUpdate(
-    cardId,
-    { $addToSet: { likes: req.user._id } }, // добавить _id в массив, если его там нет
-    { new: true },
-  ).populate(['owner', 'likes'])
-    .orFail(() => {
-      throw new NotFoundError();
-    })
-    .then((card) => res.status(200).send(card))
-    .catch((err) => {
-      errorHandler(err, req, res, next);
-    });
+    return Card.findByIdAndUpdate(
+      cardId,
+      updateData(req),
+      { new: true },
+    ).populate(['owner', 'likes'])
+      .orFail(() => {
+        throw new NotFoundError();
+      })
+      .then((card) => res.status(200).send(card))
+      .catch((err) => {
+        errorHandler(err, req, res, next);
+      });
+  };
 }
 
-function removeLike(req, res, next) {
-  const { cardId } = req.params;
-
-  return Card.findByIdAndUpdate(
-    cardId,
-    { $pull: { likes: req.user._id } }, // убрать _id из массива
-    { new: true },
-  ).populate(['owner', 'likes'])
-    .orFail(() => {
-      throw new NotFoundError();
-    })
-    .then((card) => res.status(200).send(card))
-    .catch((err) => {
-      errorHandler(err, req, res, next);
-    });
-}
-
+const addLike = updateLike((req) => ({ $addToSet: { likes: req.user._id } }));
+const removeLike = updateLike((req) => ({ $pull: { likes: req.user._id } }));
 module.exports = {
   getCards, createCard, deleteCard, addLike, removeLike,
 };

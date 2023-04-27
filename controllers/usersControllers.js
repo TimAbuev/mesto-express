@@ -52,8 +52,8 @@ function login(req, res, next) {
 }
 
 function updateUser(updateData) {
-  return function (req, res, next) {
-    return User.findByIdAndUpdate(
+  return (req, res, next) => {
+    User.findByIdAndUpdate(
       req.user._id,
       updateData(req),
       { new: true, runValidators: true },
