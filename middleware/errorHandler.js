@@ -18,6 +18,8 @@ function errorHandler(error, req, res, next) {
     res.status(ALREADY_EXIST).send({ message: 'такое мыло уже существует' });
   } else if (error instanceof UnauthorizedError) {
     res.status(UNAUTHORIZED).send({ message: error.message });
+  } else if (error instanceof mongoose.Error.CastError) {
+    res.status(BAD_REQUEST).send({ message: error.message });
   } else {
     next();
   }
