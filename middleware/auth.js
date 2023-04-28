@@ -6,6 +6,7 @@ function auth(req, res, next) {
 
   if (!authorization || !authorization.startsWith('Bearer')) {
     next(new UnauthorizedError('нет токена'));
+    return;
   }
 
   let payload;
@@ -15,6 +16,7 @@ function auth(req, res, next) {
     console.log(payload);
   } catch {
     next(new UnauthorizedError('неверный токен'));
+    return;
   }
 
   req.user = payload;
