@@ -21,6 +21,9 @@ function deleteCard(req, res, next) {
   const userId = req.user._id;
 
   Card.findById({ _id: cardId })
+    .orFail(() => {
+      throw new NotFoundError('Карточка не найдена');
+    })
     .then((card) => {
       if (userId !== card.owner.toString()) {
         console.log(`req.user._id = ${typeof userId}; card.owner = ${typeof card.owner}`);
@@ -44,7 +47,7 @@ function updateLike(updateData) {
       { new: true },
     ).populate(['owner', 'likes'])
       .orFail(() => {
-        throw new NotFoundError();
+        throw new NotFoundError('Карточка не найдена');
       })
       .then((card) => res.status(200).send(card))
       .catch((err) => {
